@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Images</title>
+</head>
+<body>
+    <div class="box">
+        <h1>Fetched Images</h1>
+        <div class="data">
+            {% for index,url in fetched_data.items() %}
+            <img src="{{ url }}" alt="Image {{ index }}">
+            {% endfor %}
+        </div>
+        <button id="download-all">Download now</button>
+    </div>
+
+
+    <!-- <script>
+        const fetched = {{ fetched_data | tojson | safe}};
+        document.getElementById("download-all").addEventListener('click', ()=>{
+            Object.values(fetched).forEach(url => {
+                const link = document.createElement("a")
+                link.href = url
+                link.download = new URL(url).pathname.split('/').pop()
+                link.click()
+            })
+        })
+    </script> -->
+
+    <script>
+        const fetched = {{ fetched_data | tojson | safe }};
+        document.getElementById("download-all").addEventListener('click', () => {
+            Object.values(fetched).forEach(url => {
+                fetch(url)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        const link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = new URL(url).pathname.split('/').pop();
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    })
+                    .catch(error => console.error('Error downloading the image:', error));
+            });
+        });
+    </script>
+</body>
+</html>
